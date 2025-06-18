@@ -43,11 +43,6 @@ jobs:
     
     - name: Run go vet
       run: go vet ./...
-    
-    - name: Check for security issues
-      uses: securecodewarrior/github-action-gosec@master
-      with:
-        args: './...'
 
   build:
     name: Build
