@@ -43,6 +43,12 @@ jobs:
     
     - name: Run go vet
       run: go vet ./...
+    
+    - name: Install govulncheck
+      run: go install golang.org/x/vuln/cmd/govulncheck@latest
+    
+    - name: Run vulnerability check
+      run: govulncheck ./...
 
   build:
     name: Build
