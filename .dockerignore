@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+LICENSE
+
+# CI/CD
+.github
+
+# Build artifacts
+sftpgw
+*.exe
+
+# IDE
+.vscode
+.idea
+
+# Temporary files
+*.tmp
+*.log
+
+# Tests
+*_test.go
+
+# Docker
+Dockerfile*
+.dockerignore
