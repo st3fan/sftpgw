@@ -22,6 +22,7 @@ The server is configured via environment variables:
 | `VIRTUAL_DIR` | No | `/uploads` | Virtual directory path for file uploads |
 | `MAX_FILE_SIZE` | No | `1048576` (1MB) | Maximum file size in bytes |
 | `S3_BUCKET` | **Yes** | - | S3 bucket name for file storage |
+| `S3_BUCKET_PREFIX` | No | - | Optional prefix for S3 object keys |
 | `AWS_REGION` | No | - | AWS region for S3 bucket (auto-detected if not specified) |
 | `AWS_ACCOUNT_ID` | **Yes** | - | Required AWS Account ID for credential validation |
 | `CONNECTION_TIMEOUT` | No | `30s` | Connection timeout duration |
@@ -98,6 +99,7 @@ The IAM user used for authentication needs the following permissions. Use this c
    export SFTP_PORT=2222
    export MAX_FILE_SIZE=10485760  # 10MB
    export VIRTUAL_DIR=/uploads
+   export S3_BUCKET_PREFIX=uploads  # Optional prefix for S3 keys
    export AWS_REGION=us-west-2  # Set if bucket is in specific region
    ```
 
@@ -134,13 +136,16 @@ Files are organized in S3 with the following structure:
 
 ```
 s3://your-bucket/
-├── 2024/01/15/14-30-45/
-│   └── 192.168.1.100/
-│       └── AKIAIOSFODNN7EXAMPLE/
-│           └── myfile.txt
+├── uploads/2024-01-15/myfile.txt
+├── uploads/2024-01-15/another-file.pdf
+└── uploads/2024-01-16/document.docx
 ```
 
-The path structure is: `YYYY/MM/DD/HH-MM-SS/CLIENT_IP/ACCESS_KEY_ID/FILENAME`
+**Without prefix:**
+- Path structure: `YYYY-MM-DD/FILENAME`
+
+**With S3_BUCKET_PREFIX set to "uploads":**
+- Path structure: `S3_BUCKET_PREFIX/YYYY-MM-DD/FILENAME`
 
 ## Logging
 

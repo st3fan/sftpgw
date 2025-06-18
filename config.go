@@ -12,6 +12,7 @@ type Config struct {
 	VirtualDir         string
 	MaxFileSize        int64
 	S3Bucket           string
+	S3BucketPrefix     string
 	S3Region           string
 	RequiredAccountID  string
 	ConnectionTimeout  time.Duration
@@ -55,6 +56,10 @@ func LoadConfig() (*Config, error) {
 		config.S3Bucket = bucket
 	} else {
 		return nil, fmt.Errorf("S3_BUCKET environment variable is required")
+	}
+
+	if prefix := os.Getenv("S3_BUCKET_PREFIX"); prefix != "" {
+		config.S3BucketPrefix = prefix
 	}
 
 	if region := os.Getenv("AWS_REGION"); region != "" {

@@ -66,7 +66,7 @@ func (s *SFTPServer) Run() error {
 		return fmt.Errorf("failed to setup SSH config: %w", err)
 	}
 
-	s.uploader = NewS3Uploader(s.config.S3Bucket, s.config.S3Region, s.logger)
+	s.uploader = NewS3Uploader(s.config.S3Bucket, s.config.S3BucketPrefix, s.config.S3Region, s.logger)
 	s.handler = NewSFTPHandler(s.config, s.uploader, s.logger)
 	s.auth = NewAuthenticator(s.config.RequiredAccountID, s.config.S3Region, s.logger)
 

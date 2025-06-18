@@ -16,16 +16,18 @@ import (
 )
 
 type S3Uploader struct {
-	bucket string
-	region string
-	logger *slog.Logger
+	bucket       string
+	bucketPrefix string
+	region       string
+	logger       *slog.Logger
 }
 
-func NewS3Uploader(bucket, region string, logger *slog.Logger) *S3Uploader {
+func NewS3Uploader(bucket, bucketPrefix, region string, logger *slog.Logger) *S3Uploader {
 	return &S3Uploader{
-		bucket: bucket,
-		region: region,
-		logger: logger,
+		bucket:       bucket,
+		bucketPrefix: bucketPrefix,
+		region:       region,
+		logger:       logger,
 	}
 }
 
@@ -60,7 +62,7 @@ func (u *S3Uploader) UploadFile(ctx context.Context, accessKeyID, secretAccessKe
 
 	s3Client := s3.NewFromConfig(cfg)
 
-	key := u.generateS3Key(filePath, clientIP, accessKeyID)
+	key := u.generateS3Key(filePath)
 
 	uploadCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 	defer cancel()
@@ -89,8 +91,8 @@ func (u *S3Uploader) UploadFile(ctx context.Context, accessKeyID, secretAccessKe
 	return nil
 }
 
-func (u *S3Uploader) generateS3Key(filePath, clientIP, accessKeyID string) string {
-	timestamp := time.Now().UTC().Format("2006/01/02/15-04-05")
+func (u *S3Uploader) generateS3Key(filePath string) string {
+	timestamp := time.Now().UTC().Format("2006-01-02")
 	
 	filename := filepath.Base(filePath)
 	if filename == "" || filename == "." || filename == "/" {
@@ -100,5 +102,8 @@ func (u *S3Uploader) generateS3Key(filePath, clientIP, accessKeyID string) strin
 	sanitizedFilename := strings.ReplaceAll(filename, " ", "_")
 	sanitizedFilename = strings.ReplaceAll(sanitizedFilename, "..", "_")
 	
-	return fmt.Sprintf("%s/%s/%s/%s", timestamp, clientIP, accessKeyID, sanitizedFilename)
+	if u.bucketPrefix != "" {
+		return fmt.Sprintf("%s/%s/%s", u.bucketPrefix, timestamp, sanitizedFilename)
+	}
+	return fmt.Sprintf("%s/%s", timestamp, sanitizedFilename)
 }
