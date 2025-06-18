@@ -122,7 +122,9 @@ func (h *SFTPHandler) isPathAllowed(path string) bool {
 	cleanPath := filepath.Clean(path)
 	virtualDir := filepath.Clean(h.config.VirtualDir)
 
-	if !strings.HasPrefix(cleanPath, virtualDir) {
+	// Ensure the path is inside the virtual directory
+	// Check for exact match or that it starts with virtualDir followed by a separator
+	if cleanPath != virtualDir && !strings.HasPrefix(cleanPath, virtualDir+"/") {
 		return false
 	}
 

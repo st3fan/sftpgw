@@ -20,6 +20,7 @@ type S3Uploader struct {
 	bucketPrefix string
 	region       string
 	logger       *slog.Logger
+	timeFunc     func() time.Time
 }
 
 func NewS3Uploader(bucket, bucketPrefix, region string, logger *slog.Logger) *S3Uploader {
@@ -28,6 +29,7 @@ func NewS3Uploader(bucket, bucketPrefix, region string, logger *slog.Logger) *S3
 		bucketPrefix: bucketPrefix,
 		region:       region,
 		logger:       logger,
+		timeFunc:     time.Now,
 	}
 }
 
@@ -74,7 +76,7 @@ func (u *S3Uploader) UploadFile(ctx context.Context, accessKeyID, secretAccessKe
 		Metadata: map[string]string{
 			"client-ip":       clientIP,
 			"access-key-id":   accessKeyID,
-			"upload-time":     time.Now().UTC().Format(time.RFC3339),
+			"upload-time":     u.timeFunc().UTC().Format(time.RFC3339),
 			"original-path":   filePath,
 		},
 	})
@@ -92,7 +94,7 @@ func (u *S3Uploader) UploadFile(ctx context.Context, accessKeyID, secretAccessKe
 }
 
 func (u *S3Uploader) generateS3Key(filePath string) string {
-	timestamp := time.Now().UTC().Format("2006-01-02")
+	timestamp := u.timeFunc().UTC().Format("2006-01-02")
 	
 	filename := filepath.Base(filePath)
 	if filename == "" || filename == "." || filename == "/" {
