@@ -17,12 +17,14 @@ import (
 
 type S3Uploader struct {
 	bucket string
+	region string
 	logger *slog.Logger
 }
 
-func NewS3Uploader(bucket string, logger *slog.Logger) *S3Uploader {
+func NewS3Uploader(bucket, region string, logger *slog.Logger) *S3Uploader {
 	return &S3Uploader{
 		bucket: bucket,
+		region: region,
 		logger: logger,
 	}
 }
@@ -38,13 +40,19 @@ func (u *S3Uploader) UploadFile(ctx context.Context, accessKeyID, secretAccessKe
 
 	u.logger.Info("starting S3 upload", logCtx)
 
-	cfg, err := config.LoadDefaultConfig(ctx,
+	configOptions := []func(*config.LoadOptions) error{
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
 			accessKeyID,
 			secretAccessKey,
 			"",
 		)),
-	)
+	}
+
+	if u.region != "" {
+		configOptions = append(configOptions, config.WithRegion(u.region))
+	}
+
+	cfg, err := config.LoadDefaultConfig(ctx, configOptions...)
 	if err != nil {
 		u.logger.Error("failed to load AWS config for upload", logCtx, slog.String("error", err.Error()))
 		return fmt.Errorf("failed to configure AWS client: %w", err)

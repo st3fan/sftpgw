@@ -12,6 +12,7 @@ type Config struct {
 	VirtualDir         string
 	MaxFileSize        int64
 	S3Bucket           string
+	S3Region           string
 	RequiredAccountID  string
 	ConnectionTimeout  time.Duration
 	ReadTimeout        time.Duration
@@ -54,6 +55,10 @@ func LoadConfig() (*Config, error) {
 		config.S3Bucket = bucket
 	} else {
 		return nil, fmt.Errorf("S3_BUCKET environment variable is required")
+	}
+
+	if region := os.Getenv("AWS_REGION"); region != "" {
+		config.S3Region = region
 	}
 
 	if accountID := os.Getenv("AWS_ACCOUNT_ID"); accountID != "" {

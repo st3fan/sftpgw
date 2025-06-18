@@ -22,6 +22,7 @@ The server is configured via environment variables:
 | `VIRTUAL_DIR` | No | `/uploads` | Virtual directory path for file uploads |
 | `MAX_FILE_SIZE` | No | `1048576` (1MB) | Maximum file size in bytes |
 | `S3_BUCKET` | **Yes** | - | S3 bucket name for file storage |
+| `AWS_REGION` | No | - | AWS region for S3 bucket (auto-detected if not specified) |
 | `AWS_ACCOUNT_ID` | **Yes** | - | Required AWS Account ID for credential validation |
 | `CONNECTION_TIMEOUT` | No | `30s` | Connection timeout duration |
 | `READ_TIMEOUT` | No | `30s` | Read operation timeout |
@@ -97,6 +98,7 @@ The IAM user used for authentication needs the following permissions. Use this c
    export SFTP_PORT=2222
    export MAX_FILE_SIZE=10485760  # 10MB
    export VIRTUAL_DIR=/uploads
+   export AWS_REGION=us-west-2  # Set if bucket is in specific region
    ```
 
 3. Start the server:

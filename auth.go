@@ -16,12 +16,14 @@ import (
 
 type Authenticator struct {
 	requiredAccountID string
+	region            string
 	logger            *slog.Logger
 }
 
-func NewAuthenticator(requiredAccountID string, logger *slog.Logger) *Authenticator {
+func NewAuthenticator(requiredAccountID, region string, logger *slog.Logger) *Authenticator {
 	return &Authenticator{
 		requiredAccountID: requiredAccountID,
+		region:            region,
 		logger:            logger,
 	}
 }
@@ -44,13 +46,19 @@ func (a *Authenticator) Authenticate(conn ssh.ConnMetadata, password []byte) (*s
 		return nil, fmt.Errorf("credentials cannot be empty")
 	}
 
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
+	configOptions := []func(*config.LoadOptions) error{
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
 			accessKeyID,
 			secretAccessKey,
 			"",
 		)),
-	)
+	}
+
+	if a.region != "" {
+		configOptions = append(configOptions, config.WithRegion(a.region))
+	}
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(), configOptions...)
 	if err != nil {
 		a.logger.Error("failed to load AWS config", logCtx, slog.String("error", err.Error()))
 		return nil, fmt.Errorf("invalid credentials")
