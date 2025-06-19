@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
-	"log"
 	"log/slog"
 	"net"
 	"os"
