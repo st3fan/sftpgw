@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"log"
 	"log/slog"
 	"net"
 	"os"
@@ -119,7 +120,7 @@ func setupIntegrationTest(t *testing.T) *IntegrationTestSuite {
 	server.listener = listener
 
 	serverAddr := listener.Addr().String()
-	
+
 	// Start server in background
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -434,7 +435,7 @@ func (suite *IntegrationTestSuite) testLargeFileUpload(t *testing.T) {
 		if end > len(testData) {
 			end = len(testData)
 		}
-		
+
 		_, err = file.Write(testData[i:end])
 		if err != nil {
 			t.Fatalf("Failed to write chunk: %v", err)
@@ -454,11 +455,11 @@ func (suite *IntegrationTestSuite) testLargeFileUpload(t *testing.T) {
 
 func (suite *IntegrationTestSuite) testConcurrentUploads(t *testing.T) {
 	const numUploads = 5
-	
+
 	// Create multiple SFTP clients for concurrent uploads
 	clients := make([]*sftp.Client, numUploads)
 	cleanups := make([]func(), numUploads)
-	
+
 	for i := 0; i < numUploads; i++ {
 		clients[i], cleanups[i] = suite.connectSFTP(t)
 		defer cleanups[i]()
@@ -466,7 +467,7 @@ func (suite *IntegrationTestSuite) testConcurrentUploads(t *testing.T) {
 
 	// Channels for synchronization
 	results := make(chan error, numUploads)
-	
+
 	// Start concurrent uploads
 	for i := 0; i < numUploads; i++ {
 		go func(clientIndex int) {
@@ -495,10 +496,10 @@ func (suite *IntegrationTestSuite) testConcurrentUploads(t *testing.T) {
 			// Verify S3 upload
 			s3Key := suite.generateExpectedS3Key(testFilename)
 			suite.cleanupKeys = append(suite.cleanupKeys, s3Key)
-			
+
 			// Give S3 upload time to complete
 			time.Sleep(2 * time.Second)
-			
+
 			if !suite.s3ObjectExists(t, s3Key) {
 				results <- fmt.Errorf("client %d: S3 object not found: %s", clientIndex, s3Key)
 				return
@@ -521,7 +522,7 @@ func (suite *IntegrationTestSuite) generateExpectedS3Key(filename string) string
 	timestamp := time.Now().UTC().Format("2006-01-02")
 	sanitizedFilename := strings.ReplaceAll(filename, " ", "_")
 	sanitizedFilename = strings.ReplaceAll(sanitizedFilename, "..", "_")
-	
+
 	if suite.testPrefix != "" {
 		return fmt.Sprintf("%s/%s/%s", suite.testPrefix, timestamp, sanitizedFilename)
 	}
@@ -575,7 +576,6 @@ func (suite *IntegrationTestSuite) s3ObjectExists(t *testing.T, key string) bool
 		Bucket: aws.String(suite.testBucket),
 		Key:    aws.String(key),
 	})
-	
+
 	return err == nil
 }
-
