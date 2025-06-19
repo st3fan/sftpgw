@@ -9,7 +9,6 @@ import (
 	"log/slog"
 	"net"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -580,9 +579,3 @@ func (suite *IntegrationTestSuite) s3ObjectExists(t *testing.T, key string) bool
 	return err == nil
 }
 
-func getClientIP(addr net.Addr) string {
-	if tcpAddr, ok := addr.(*net.TCPAddr); ok {
-		return tcpAddr.IP.String()
-	}
-	return addr.String()
-}
