@@ -249,4 +249,4 @@ logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Mozilla Public License Version 2.0 - see the LICENSE file for details.
