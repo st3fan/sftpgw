@@ -62,7 +62,7 @@ func TestSFTPHandler_isPathAllowed(t *testing.T) {
 		{
 			name:     "path with .. in filename (should be allowed)",
 			path:     "/uploads/my..file.txt",
-			expected: false, // Current implementation rejects any path with .. anywhere
+			expected: true,
 		},
 		{
 			name:     "path starting with uploads but different directory",

@@ -119,20 +119,22 @@ func (h *SFTPHandler) Filelist(r *sftp.Request) (sftp.ListerAt, error) {
 }
 
 func (h *SFTPHandler) isPathAllowed(path string) bool {
+	// isPathAllowed checks if the given path is allowed for file operations.
+	// It ensures that:
+	// 1. The path, after cleaning, is absolute.
+	// 2. The path does not attempt to traverse outside the configured VirtualDir.
+	//    This is achieved by checking if the relative path from VirtualDir starts with "..".
 	cleanPath := filepath.Clean(path)
-	virtualDir := filepath.Clean(h.config.VirtualDir)
+	if !filepath.IsAbs(cleanPath) {
+		cleanPath = "/" + cleanPath
+	}
 
-	// Ensure the path is inside the virtual directory
-	// Check for exact match or that it starts with virtualDir followed by a separator
-	if cleanPath != virtualDir && !strings.HasPrefix(cleanPath, virtualDir+"/") {
+	relPath, err := filepath.Rel(h.config.VirtualDir, cleanPath)
+	if err != nil {
 		return false
 	}
 
-	if strings.Contains(cleanPath, "..") {
-		return false
-	}
-
-	return true
+	return !strings.HasPrefix(relPath, "..")
 }
 
 type FileWriter struct {
