@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -42,6 +43,12 @@ func LoadConfig() (*Config, error) {
 
 	if vdir := os.Getenv("VIRTUAL_DIR"); vdir != "" {
 		config.VirtualDir = vdir
+	}
+
+	// Clean and ensure VirtualDir is an absolute path
+	config.VirtualDir = filepath.Clean(config.VirtualDir)
+	if !filepath.IsAbs(config.VirtualDir) {
+		config.VirtualDir = "/" + config.VirtualDir
 	}
 
 	if maxSize := os.Getenv("MAX_FILE_SIZE"); maxSize != "" {
